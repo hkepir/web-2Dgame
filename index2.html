@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Pro Build 2D - Stabil Edition</title>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        canvas { background-color: #001220; border: 4px solid #333; cursor: crosshair; box-shadow: 0 0 50px rgba(0,255,204,0.1); }
+        #arayuz { position: absolute; top: 20px; left: 20px; pointer-events: none; }
+        .istatistik { margin-bottom: 5px; font-size: 16px; border-left: 4px solid #00ffcc; padding-left: 10px; background: rgba(0,0,0,0.6); padding: 8px 12px; border-radius: 0 8px 8px 0; }
+        .vurgu { color: #00ffcc; font-weight: bold; }
+        .envanter-cubugu { display: flex; gap: 10px; margin-top: 15px; pointer-events: auto; }
+        .slot { padding: 10px; border: 2px solid #444; font-size: 13px; background: rgba(255,255,255,0.05); cursor: pointer; transition: 0.3s; border-radius: 4px; text-align: center; min-width: 70px; }
+        .slot.aktif { border-color: #00ffcc; background: rgba(0,255,204,0.15); box-shadow: 0 0 10px rgba(0,255,204,0.3); }
+        #basariModali { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(0, 18, 32, 0.95); border: 2px solid #00ffcc; padding: 30px; text-align: center; border-radius: 15px; box-shadow: 0 0 40px rgba(0,0,0,0.8); visibility: hidden; opacity: 0; transition: 0.4s; z-index: 100; }
+        #basariModali.aktif { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        #basariModali button { background: #00ffcc; border: none; padding: 10px 25px; border-radius: 5px; color: #001220; font-weight: bold; cursor: pointer; }
+        /* Yeni Geri Sayım Görseli */
+        #countdown { position: absolute; top: 50%; width: 100%; text-align: center; font-size: 80px; color: #ff4d4d; font-weight: bold; display: none; text-shadow: 0 0 20px #000; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="basariModali">
+        <h2>★ TEBRİKLER! ★</h2>
+        <p>3 Saniye Boyunca Dengede Kaldınız.</p>
+        <button onclick="location.reload()">YENİDEN BAŞLA</button>
+    </div>
+
+    <div id="countdown">3</div>
+
+    <div id="arayuz">
+        <div class="istatistik">MOD: <span id="modYazisi" class="vurgu">PLANLAMA</span></div>
+        <div class="istatistik">TASARIM: <span id="taslakYazisi" class="vurgu">0 / 4</span></div>
+        <div class="envanter-cubugu">
+            <div class="slot aktif" id="slot1" onclick="blokTipiSec('NORMAL', 1)">Standart</div>
+            <div class="slot" id="slot2" onclick="blokTipiSec('ZIPLAYAN', 2)">Tramplen</div>
+            <div class="slot" id="slot3" onclick="blokTipiSec('BUZ', 3)">Buz</div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas" width="1000" height="800"></canvas>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const tileSize = 40;
+    const ROWS = 20; 
+    const COLS = 25; 
+    const VACANT = "transparent";
+    const BLOK_TIPLERI = {
+        NORMAL: { id: 'normal', renk: '#3498db', ziplatma: 1, surtunme: 1 },
+        ZIPLAYAN: { id: 'ziplayan', renk: '#2ecc71', ziplatma: 1.8, surtunme: 1 },
+        BUZ: { id: 'buz', renk: '#a2d2ff', ziplatma: 1, surtunme: 0.98 }
+    };
+    let seciliBlokTipi = BLOK_TIPLERI.NORMAL;
+
+    let board = [];
+    for(let r = 0; r < ROWS; r++) {
+        board[r] = [];
+        for(let c = 0; c < COLS; c++) {
+            board[r][c] = (r === ROWS - 1) ? { color: "#151515", type: 'ZEMIN' } : VACANT;
+        }
+    }
+
+    let gameState = "DRAWING"; 
+    const gravity = 0.5;
+    const dropSpeed = 10;
+    const goalLineY = 150;
+    const swingAmplitude = 400;
+    
+    let selectedTiles = [];
+    let currentShape = null;
+    let oscillation = 0;
+    let parcaciklar = [];
+    let oyunBitti = false;
+
+    // Kazanma Süresi Kontrolü
+    let winTimer = 0;
+    let isWinActive = false;
+
+    const player = { x: 50, y: 700, w: 30, h: 30, dx: 0, dy: 0, speed: 6, jump: -13, grounded: false };
+
+    class Parcacik {
+        constructor(x, y, renk) {
+            this.x = x; this.y = y;
+            this.boyut = Math.random() * 4 + 2;
+            this.hizX = (Math.random() - 0.5) * 6;
+            this.hizY = (Math.random() - 0.5) * 6;
+            this.omur = 1.0;
+            this.renk = renk;
+        }
+        guncelle() { this.x += this.hizX; this.y += this.hizY; this.omur -= 0.02; }
+        ciz() {
+            ctx.save(); ctx.globalAlpha = this.omur; ctx.fillStyle = this.renk;
+            ctx.fillRect(this.x, this.y, this.boyut, this.boyut); ctx.restore();
+        }
+    }
+
+    function tozOlustur(x, y, renk = "#fff", adet = 10) {
+        for(let i = 0; i < adet; i++) parcaciklar.push(new Parcacik(x, y, renk));
+    }
+
+    function drawBlock(x, y, color) {
+        ctx.fillStyle = color; ctx.fillRect(x, y, tileSize, tileSize);
+        ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.strokeRect(x, y, tileSize, tileSize);
+    }
+
+    function checkMatrixCollision(x, y) {
+        let c = Math.floor(x / tileSize);
+        let r = Math.floor(y / tileSize);
+        if (c < 0 || c >= COLS || r >= ROWS) return true;
+        if (r < 0) return false;
+        return board[r][c] !== VACANT;
+    }
+
+    function getBlockData(x, y) {
+        let c = Math.floor(x / tileSize);
+        let r = Math.floor(y / tileSize);
+        if (r >= 0 && r < ROWS && c >= 0 && c < COLS) return board[r][c];
+        return null;
+    }
+
+    const keys = {};
+    window.addEventListener("keydown", e => {
+        keys[e.code] = true;
+        if (e.code === "Space") handleAction();
+        if (e.code === "Enter") {
+            gameState = "CHARACTER_PLAY";
+            document.getElementById("modYazisi").innerText = "SİMLÜLASYON";
+        }
+    });
+    window.addEventListener("keyup", e => keys[e.code] = false);
+
+    window.blokTipiSec = (tip, id) => {
+        seciliBlokTipi = BLOK_TIPLERI[tip];
+        document.querySelectorAll('.slot').forEach(s => s.classList.remove('aktif'));
+        document.getElementById('slot' + id).classList.add('aktif');
+    };
+
+    canvas.addEventListener("mousedown", e => {
+        if (gameState !== "DRAWING" || oyunBitti) return;
+        const rect = canvas.getBoundingClientRect();
+        const gx = Math.floor((e.clientX - rect.left) / tileSize);
+        const gy = Math.floor((e.clientY - rect.top) / tileSize);
+        const idx = selectedTiles.findIndex(t => t.x === gx && t.y === gy);
+        if (idx >= 0) selectedTiles.splice(idx, 1);
+        else if (selectedTiles.length < 4) {
+            selectedTiles.push({x: gx, y: gy});
+            tozOlustur(gx * tileSize + 20, gy * tileSize + 20, seciliBlokTipi.renk, 8);
+        }
+        document.getElementById("taslakYazisi").innerText = `${selectedTiles.length} / 4`;
+    });
+
+    function handleAction() {
+        if (gameState === "DRAWING" && selectedTiles.length >= 3) {
+            gameState = "SWINGING";
+            document.getElementById("modYazisi").innerText = "HEDEFLEME";
+        } else if (gameState === "SWINGING") {
+            const offset = Math.sin(oscillation) * swingAmplitude;
+            const minX = Math.min(...selectedTiles.map(t => t.x)), minY = Math.min(...selectedTiles.map(t => t.y));
+            currentShape = {
+                // X POZİSYONU ARTIK IZGARA DIŞI (PİKSEL BAZLI)
+                x: (canvas.width / 2 + offset), 
+                y: -100,
+                parts: selectedTiles.map(t => ({ ox: (t.x - minX) * tileSize, oy: (t.y - minY) * tileSize })),
+                config: seciliBlokTipi
+            };
+            gameState = "FALLING";
+        }
+    }
+
+    function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        oscillation += 0.05;
+
+        // Hedef Çizgisi
+        ctx.fillStyle = "rgba(0, 255, 204, 0.05)"; ctx.fillRect(0, 0, canvas.width, goalLineY);
+        ctx.strokeStyle = "rgba(0, 255, 204, 0.3)"; ctx.lineWidth = 2; ctx.beginPath();
+        ctx.moveTo(0, goalLineY); ctx.lineTo(canvas.width, goalLineY); ctx.stroke();
+
+        for(let r = 0; r < ROWS; r++) {
+            for(let c = 0; c < COLS; c++) {
+                if(board[r][c] !== VACANT) drawBlock(c * tileSize, r * tileSize, board[r][c].color);
+            }
+        }
+
+        parcaciklar.forEach((p, i) => { p.guncelle(); p.ciz(); if (p.omur <= 0) parcaciklar.splice(i, 1); });
+
+        if (gameState === "FALLING" && currentShape) {
+            let hit = false;
+            for(let p of currentShape.parts) {
+                // Çarpışma kontrolü piksel bazlı yapılıyor
+                if(checkMatrixCollision(currentShape.x + p.ox, currentShape.y + p.oy + dropSpeed)) hit = true;
+            }
+
+            if (!hit) {
+                currentShape.y += dropSpeed;
+            } else {
+                currentShape.parts.forEach(p => {
+                    // YERE DEĞDİĞİ AN EN YAKIN IZGARA HÜCRELERİNİ DOLDURUYOR (Matris Yapısını Korumak İçin)
+                    let lx = Math.floor((currentShape.x + p.ox) / tileSize);
+                    let ly = Math.floor((currentShape.y + p.oy) / tileSize);
+                    if(ly >= 0 && ly < ROWS && lx >= 0 && lx < COLS) {
+                        board[ly][lx] = { color: currentShape.config.renk, type: currentShape.config.id, data: currentShape.config };
+                        tozOlustur(lx * tileSize + 20, ly * tileSize + 20, currentShape.config.renk, 12);
+                    }
+                });
+                currentShape = null; gameState = "DRAWING"; selectedTiles = [];
+                document.getElementById("modYazisi").innerText = "PLANLAMA";
+                document.getElementById("taslakYazisi").innerText = `0 / 4`;
+            }
+            if(currentShape) currentShape.parts.forEach(p => drawBlock(currentShape.x + p.ox, currentShape.y + p.oy, currentShape.config.renk));
+        }
+
+        if (gameState === "CHARACTER_PLAY" && !oyunBitti) {
+            player.dx = (keys["KeyA"] || keys["ArrowLeft"]) ? -player.speed : (keys["KeyD"] || keys["ArrowRight"]) ? player.speed : 0;
+            
+            let nextX = player.x + player.dx;
+            if (nextX >= 0 && nextX <= canvas.width - player.w) {
+                if (!checkMatrixCollision(nextX, player.y) && !checkMatrixCollision(nextX + player.w, player.y)) {
+                    player.x = nextX;
+                }
+            }
+
+            player.dy += gravity;
+            let nextY = player.y + player.dy;
+            
+            if (checkMatrixCollision(player.x + 5, nextY + player.h) || checkMatrixCollision(player.x + player.w - 5, nextY + player.h)) {
+                player.dy = 0;
+                player.grounded = true;
+                player.y = Math.floor((nextY + player.h) / tileSize) * tileSize - player.h;
+
+                let footData = getBlockData(player.x + player.w/2, nextY + player.h);
+                if (footData) {
+                    if (footData.type === 'ziplayan') {
+                        player.dy = player.jump * footData.data.ziplatma;
+                        player.grounded = false;
+                        tozOlustur(player.x + player.w/2, player.y + player.h, footData.color, 15);
+                    }
+                    if (footData.type === 'buz') {
+                        player.dx *= footData.data.surtunme;
+                    }
+                }
+            } else {
+                player.y = nextY;
+                player.grounded = false;
+            }
+
+            if (checkMatrixCollision(player.x + 5, player.y)) player.dy = 1;
+
+            if ((keys["Space"] || keys["ArrowUp"]) && player.grounded) {
+                player.dy = player.jump;
+                player.grounded = false;
+                tozOlustur(player.x + player.w/2, player.y + player.h, "#fff", 10);
+            }
+
+            if (player.y > canvas.height) { player.x = 50; player.y = 700; player.dy = 0; }
+            drawBlock(player.x, player.y, "#00ffcc");
+
+            // KAZANMA MODU: 3 SANİYE BEKLEME KURALI
+            if (player.y < goalLineY) {
+                if (!isWinActive) { 
+                    isWinActive = true; 
+                    winTimer = Date.now(); 
+                }
+                let elapsed = Math.floor((Date.now() - winTimer) / 1000);
+                let remaining = 3 - elapsed;
+                
+                if(remaining > 0) {
+                    document.getElementById("countdown").style.display = "block";
+                    document.getElementById("countdown").innerText = remaining;
+                }
+
+                if (elapsed >= 3) {
+                    oyunBitti = true;
+                    document.getElementById("countdown").style.display = "none";
+                    document.getElementById("basariModali").classList.add("aktif");
+                }
+            } else {
+                isWinActive = false;
+                document.getElementById("countdown").style.display = "none";
+            }
+        }
+
+        if (gameState === "DRAWING") selectedTiles.forEach(t => drawBlock(t.x * tileSize, t.y * tileSize, seciliBlokTipi.renk));
+        else if (gameState === "SWINGING") {
+            const offset = Math.sin(oscillation) * swingAmplitude;
+            const minX = Math.min(...selectedTiles.map(t => t.x)), minY = Math.min(...selectedTiles.map(t => t.y));
+            // SALLANIRKEN DE PİKSEL BAZLI GÖSTERİLİYOR
+            selectedTiles.forEach(t => drawBlock((t.x - minX) * tileSize + (canvas.width/2 + offset), (t.y - minY) * tileSize + 50, seciliBlokTipi.renk));
+        }
+
+        requestAnimationFrame(update);
+    }
+    update();
+</script>
+</body>
+</html>
