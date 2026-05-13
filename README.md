@@ -2,7 +2,9 @@
 
 ## Esinlenen Oyunlar
 ### Oyun Linki
-- 
+- https://suumpmolk.itch.io/blueprint-bob
+### Oyun Adı
+- Blueprint Bob
 
 ## Görseller
 
