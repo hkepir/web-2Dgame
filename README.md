@@ -80,14 +80,14 @@ Bu proje, dersin gereksinimleri doğrultusunda aşağıdaki özellikleri barınd
 
   ---
 
-## Faydalanılan Video Kaynakları ve Github Hesapları
+## Faydalanılan Video Kaynakları ve GitHub Hesapları
 
 ### Video Kanalları
 - The Nature of Code
 - Code Explained - Create Tetris Game Using JavaScript and HTML5 | JavaScript Project For Beginners
 - Coding Math
 
-### Github Hesapları
+### GitHub Hesapları
 - https://github.com/liabru/matter-js/blob/master/examples/mixed.js
 - https://github.com/xi/trickytowers?ysclid=mp49gzpotw452697405
 
