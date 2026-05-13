@@ -14,7 +14,7 @@ Bu proje, HTML5 Canvas ve saf JavaScript kullanılarak geliştirilmiş, fizik ta
 
 ## Oyunun Hedefi ve Zorluk Mekaniği 
 **Hedef:** Oyuncunun temel amacı, vinç yardımıyla blokları üst üste dizerek ekranın belirli bir yüksekliğinde bulunan "Hedef Çizgisine" ulaşmak ve ardından ana karakterimizi bu kulenin en tepesine çıkartarak 3 saniye boyunca dengede kalmasını sağlamaktır.
-**Zorluk (Challenge):**
+** Zorluk (Challenge): **
 * Blokların ağırlık merkezleri asimetriktir, bu yüzden yanlış hizalamalar tork yaratarak kulenin devrilmesine yol açar.
 * 90 saniyelik kısıtlı bir inşa süresi vardır.
 * Karakter kuleye tırmanırken ekstra bir ağırlık ve momentum yaratır; bu da önceden stabil görünen kulenin son anda yıkılmasına neden olabilir.
