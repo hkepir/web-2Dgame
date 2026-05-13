@@ -10,11 +10,11 @@
 ---
 5)	"Şu ana kadar nesnelerin temel hareketlerini ve birbirlerine değip değmediklerini kurguladık. Peki, daha önce konuştuğumuz detaylara ve sana gönderdiğim eğitim videolarındaki kaynaklara dayanarak, bu fizik motoruna başka neler ekleyebiliriz? Örneğin, objelerin çarpıştıklarında birbirlerine gerçekçi bir şekilde hız ve enerji gibi etkileşimleri profesyonel bir seviyeye taşıyacak hangi fonksiyonlara ihtiyacımız var?"
 ---
-6)"Collision detection nedir? Bloklar iç içe geçmeden çarpışabilir mi?"
+6) "Collision detection nedir? Bloklar iç içe geçmeden çarpışabilir mi?"
 ---
 7)	"Testler sırasında blokların ara sıra birbirinin içine geçtiğini ve sonrasında uçmaya başlıyorlar. Ben blokların bu şekilde hatalı davranışlarını değil, sadece oluşan doğal dengesizliklerinden ötürü gerçekçi bir şekilde devrilmelerini istiyorum. Bu iç içe geçme ve patlama döngüsünü kırmak için fizik motorundaki ayrışma değerlerini normalde olması gerektiği gibi nasıl güncelleyebiliriz?"
 ---
-8)"Blokların birbirini gereksiz yere fırlatmasını (pop etkisi) engellemek için itme kuvvetlerini (impulse) optimize et."
+8) "Blokların birbirini gereksiz yere fırlatmasını (pop etkisi) engellemek için itme kuvvetlerini (impulse) optimize et."
 ---
 9)	"Bloklardaki titreme sorununu profesyonelce çözmek için matter-js/examples/mixed.js at master · liabru/matter-js linkindeki kaynak kodlarınını inceledim. Bu kütüphanenin fizik hesaplamalarından ve mimarisini kullanarak, bizim sistemimize entegre edebileceğimiz kodlar veya algoritmalar çıkarabilir miyiz? Özellikle bu profesyonel motorların objeleri dengede tutmak için kullanılan yöntemleri kendi kodumuza uyarlamak istiyorum. "
 ---
@@ -24,11 +24,16 @@
 ---
 12)
 <img width="499" height="464" alt="image" src="https://github.com/user-attachments/assets/da0f4487-015d-4547-a324-51677040159e" />
+
 "Görseldeki blokların bu şekilde havada asılı kalması gerçek fizik kurallarına aykırı, bu denge sorununu düzeltmeliyiz. Ayrıca karakter kontrollerinde bir hata var; sadece sağ-sol tuşlarıyla yürümüyor."
+
 ---
+
 13)
 <img width="534" height="458" alt="image" src="https://github.com/user-attachments/assets/2849d907-315f-457f-a4d3-793aca52e135" />
+
 "Görseldeki fizik kurallarına aykırı o asılı kalma durumunu düzeltelim ve dengeyi gerçek hayattaki gibi yapmayı deneyelim. Ayrıca karakter kontrollerinde hala bir sorun var; Karakter şekilleri duvar olarak görmüyor, içlerinden geçip gidiyor."
+
 ---
 14)"Karakterin yönüne göre görseli aynala (flip effect). Sağa giderken sağa, sola giderken sola baksın."
 
