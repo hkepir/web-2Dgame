@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>HIGH QUACK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <style>
+        /* 1. GENEL OYUN YAPISI VE LAYOUT */
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #0a0a0a;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        canvas {
+            background-color: #001220;
+            border: 4px solid #333;
+            cursor: crosshair;
+            box-shadow: 0 0 50px rgba(0, 255, 204, 0.1);
+        }
+
+        /* 2. KULLANICI ARAYÜZÜ */
+        #arayuz {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+        }
+
+        .istatistik {
+            margin-bottom: 5px;
+            font-size: 16px;
+            border-left: 4px solid #00ffcc;
+            padding-left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 12px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .vurgu {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+
+        .envanter-cubugu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+            pointer-events: auto;
+            width: 140px;
+        }
+
+        .slot {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            border: 2px solid #333;
+            background: rgba(0, 0, 0, 0.7);
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #aaa;
+        }
+
+        .slot.aktif {
+            border-color: #00ffcc;
+            background: rgba(0, 255, 204, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+            color: #00ffcc;
+        }
+
+        .blok-ikon {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        /* 3. DURUM BİLDİRİM MODALLARI */
+        #basariModali {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(0, 18, 32, 0.95);
+            border: 2px solid #00ffcc;
+            padding: 30px;
+            text-align: center;
+            border-radius: 15px;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.4s;
+            z-index: 100;
+        }
+
+        #basariModali.aktif {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        button {
+            background: #00ffcc;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            color: #001220;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* 4. SEÇİM EKRANI */
+        #baslangicEkrani {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #001220;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .secim-kutusu {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .secenek {
+            width: 140px;
+            height: 140px;
+            border: 3px solid #444;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            background-size: cover;
+            background-position: center;
+            background-color: #111;
+        }
+
+        .secenek.aktif {
+            border-color: #00ffcc;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            transform: scale(1.1);
+        }
+
+        .secenek:hover {
+            border-color: #aaa;
+        }
+
+        .baslik {
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #00ffcc;
+            text-shadow: 0 0 12px rgba(0, 255, 204, 0.8);
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+        }
+
+        .bg-isim {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            transition: 0.3s;
+            text-transform: uppercase;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            text-shadow: 0 3px 5px rgba(0, 0, 0, 0.9);
+        }
+
+        #oyunaBaslaBtn {
+            font-size: 22px;
+            padding: 15px 50px;
+            margin-top: 20px;
+            display: none;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        }
+
+        /* 5. SOL ALT BİLGİLENDİRME BÖLÜMÜ */
+        #talimat-paneli {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            background: linear-gradient(135deg, rgba(0, 18, 32, 0.9), rgba(0, 0, 0, 0.8));
+            border-left: 4px solid #00ffcc;
+            padding: 20px;
+            border-radius: 0 15px 15px 0;
+            font-size: 14px;
+            pointer-events: none;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .talimat-baslik {
+            color: #00ffcc;
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 15px;
+            text-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+        }
+
+        .tus {
+            background: #222;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border-bottom: 4px solid #000;
+            border-top: 1px solid #555;
+            margin: 0 5px 0 0;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-block;
+            transform: translateY(-2px);
+        }
+
+        .talimat-satir {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            color: #ddd;
+        }
+
+        .talimat-uyari {
+            color: #ff4d4d;
+            margin-top: 15px;
+            font-weight: 800;
+            text-align: center;
+            border-top: 1px dashed #444;
+            padding-top: 12px;
+            text-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+            letter-spacing: 1px;
+        }
+
+        /* 6. GERİ SAYIM ANİMASYONU */
+        #countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 150px;
+            color: #ff4d4d;
+            font-weight: bold;
+            display: none;
+            text-shadow: 0 0 40px rgba(255, 77, 77, 0.6);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        #charSecimleri .secenek {
+            background-color: transparent;
+            border: none;
+        }
+
+        #charSecimleri .secenek.aktif {
+            box-shadow: none;
+            filter: drop-shadow(0 0 15px #00ffcc);
+            transform: scale(1.2);
+        }
+
+        /* 7. YÜKLEME EKRANI */
+        #splashEkrani {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #001220;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .splash-baslik {
+            font-size: 75px;
+            color: #00ffcc;
+            margin: 0;
+            text-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
+            font-weight: 800;
+            letter-spacing: 8px;
+            animation: baslikParlat 2s infinite alternate;
+        }
+
+        @keyframes baslikParlat {
+            from { text-shadow: 0 0 20px rgba(0, 255, 204, 0.4); }
+            to { text-shadow: 0 0 50px rgba(0, 255, 204, 0.9); }
+        }
+
+        .splash-alt {
+            color: #fff;
+            font-size: 18px;
+            letter-spacing: 4px;
+            margin-top: 10px;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        .splash-icerik {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .yukleme-cubugu-dis {
+            width: 350px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 60px;
+            overflow: hidden;
+        }
+
+        .yukleme-cubugu-ic {
+            width: 0%;
+            height: 100%;
+            background: #00ffcc;
+            box-shadow: 0 0 15px #00ffcc;
+            animation: yuklemeAnimasyonu 5.5s linear forwards;
+        }
+
+        @keyframes yuklemeAnimasyonu {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .yukleme-metni {
+            margin-top: 20px;
+            color: #00ffcc;
+            font-size: 13px;
+            letter-spacing: 2px;
+            font-weight: 600;
+            animation: yaziFlas 1.5s infinite;
+        }
+
+        @keyframes yaziFlas {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        #baslangicEkrani {
+            display: none;
+        }
+
+        /* 8. MOBİL UYARLAMA */
+        #mobil-kontroller {
+            display: none;
+        }
+
+        @media (max-width: 1024px) {
+            canvas {
+                max-width: 100vw;
+                max-height: 100vh;
+                object-fit: contain;
+                border: none;
+            }
+
+            #talimat-paneli {
+                display: none;
+            }
+
+            #arayuz {
+                transform: scale(0.8);
+                transform-origin: top left;
+            }
+
+            #baslangicEkrani {
+                justify-content: flex-start;
+                padding: 40px 10px;
+            }
+
+            .secenek {
+                width: 100px;
+                height: 100px;
+            }
+
+            #mobil-kontroller {
+                display: flex;
+                justify-content: space-between;
+                position: absolute;
+                bottom: 20px;
+                left: 0;
+                width: 100vw;
+                padding: 0 20px;
+                box-sizing: border-box;
+                pointer-events: none;
+                z-index: 1000;
+            }
+
+            .mobil-sol-grup,
+            .mobil-sag-grup {
+                display: flex;
+                gap: 15px;
+                pointer-events: auto;
+            }
+
+            .mobil-btn {
+                background: rgba(0, 255, 204, 0.2);
+                border: 2px solid #00ffcc;
+                color: #00ffcc;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                font-size: 24px;
+                font-weight: bold;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                user-select: none;
+                box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+            }
+
+            .mobil-btn:active {
+                background: rgba(0, 255, 204, 0.6);
+            }
+
+            .mobil-btn.aksiyon {
+                width: 80px;
+                border-radius: 15px;
+                font-size: 14px;
+            }
+
+            @media (orientation: landscape) {
+                canvas {
+                    max-height: 80vh;
+                }
+
+                #mobil-kontroller {
+                    bottom: 5px;
+                }
+            }
+        } 
+
+        /* SAĞ ÜST KONTROL PANELİ */
+        #sagUstKontroller {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 2500;
+        }
+
+        .kontrol-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 255, 204, 0.1);
+            border: 2px solid #00ffcc;
+            color: #00ffcc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 800;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+            transition: 0.3s;
+            user-select: none;
+        }
+
+        .kontrol-btn:hover {
+            transform: scale(1.1);
+            background: rgba(0, 255, 204, 0.2);
+        }
+
+        #duraklatEkrani {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            color: #00ffcc;
+            font-weight: bold;
+            display: none;
+            text-shadow: 0 0 30px rgba(0, 255, 204, 0.8);
+            pointer-events: none;
+            z-index: 3500;
+            letter-spacing: 10px;
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="splashEkrani">
+        <div class="splash-icerik">
+            <h1 class="splash-baslik">HIGH QUACK</h1>
+            <div class="yukleme-cubugu-dis">
+                <div class="yukleme-cubugu-ic"></div>
+            </div>
+            <p class="yukleme-metni"> GAME IS LOADİNG...</p>
+        </div>
+    </div>
+
+    <div id="baslangicEkrani">
+        <div class="baslik">ARKA PLAN SEÇİMİ</div>
+        <div class="secim-kutusu" id="bgSecimleri">
+            <div class="bg-kapsayici">
+                <div class="secenek" style="background-image: url('cake.png');"
+                    onclick="secimYap('bg', 'cake.png', this)"></div>
+                <div class="bg-isim">CAKE</div>
+            </div>
+
+            <div class="bg-kapsayici">
+                <div class="secenek" style="background-image: url('summer.png');"
+                    onclick="secimYap('bg', 'summer.png', this)"></div>
+                <div class="bg-isim">SUMMER</div>
+            </div>
+
+            <div class="bg-kapsayici">
+                <div class="secenek" style="background-image: url('winter.png');"
+                    onclick="secimYap('bg', 'winter.png', this)"></div>
+                <div class="bg-isim">WINTER</div>
+            </div>
+        </div>
+
+        <div class="baslik">KARAKTER SEÇİMİ</div>
+        <div class="secim-kutusu" id="charSecimleri">
+            <div class="secenek"
+                style="background-image: url('gozluk.png'); background-size: contain; background-position: center; background-repeat: no-repeat;"
+                onclick="secimYap('char', 'gozluk.png', this)"></div>
+            <div class="secenek"
+                style="background-image: url('gozluksuz.png'); background-size: contain; background-position: center; background-repeat: no-repeat;"
+                onclick="secimYap('char', 'gozluksuz.png', this)"></div>
+            <div class="secenek"
+                style="background-image: url('kremali_sapka.png'); background-size: contain; background-position: center; background-repeat: no-repeat;"
+                onclick="secimYap('char', 'kremali_sapka.png', this)"></div>
+            <div class="secenek"
+                style="background-image: url('yesil_sapka.png'); background-size: contain; background-position: center; background-repeat: no-repeat;"
+                onclick="secimYap('char', 'yesil_sapka.png', this)"></div>
+        </div>
+        <button id="oyunaBaslaBtn" onclick="oyunuBaslat()">OYUNA BAŞLA</button>
+    </div>
+    <div id="countdown"></div>
+    <div id="basariModali">
+        <h2>★ BAŞARILI ★</h2>
+        <p>Karakter fiziksel dengeye ulaştı.</p>
+        <button onclick="location.reload()">YENİDEN BAŞLA</button>
+    </div>
+
+    <div id="arayuz">
+        <div class="istatistik">MOD: <span id="modYazisi" class="vurgu">PLANLAMA</span></div>
+        <div class="istatistik">SÜRE: <span id="sureYazisi" class="vurgu"
+                style="color: #ff4d4d; text-shadow: 0 0 10px rgba(255, 77, 77, 0.8);">30</span></div>
+        <div class="istatistik">BİLEŞEN: <span id="taslakYazisi" class="vurgu">0 / 4</span></div>
+
+
+        <div class="envanter-cubugu">
+            <div class="slot aktif" id="slot1" onclick="blokTipiSec('NORMAL', 1)">
+                <div class="blok-ikon" style="background: #3498db;"></div> Standart
+            </div>
+            <div class="slot" id="slot2" onclick="blokTipiSec('ZIPLAYAN', 2)">
+                <div class="blok-ikon" style="background: #2ecc71;"></div> Tramplen
+            </div>
+            <div class="slot" id="slot3" onclick="blokTipiSec('BUZ', 3)">
+                <div class="blok-ikon" style="background: #a2d2ff;"></div> Buz
+            </div>
+        </div>
+    </div>
+
+    <div id="talimat-paneli">
+        <div class="talimat-baslik">SİSTEM OPERASYONU</div>
+        <div class="talimat-satir"><span class="tus">Sol Tık</span> Taslak çiz (4 kare)</div>
+        <div class="talimat-satir"><span class="tus">Space</span> Bloğu bırak / Hedefle</div>
+        <div class="talimat-satir"><span class="tus">A</span> <span class="tus">D</span> Karakteri oynat</div>
+        <div class="talimat-satir"><span class="tus">W</span> Karakteri zıplat</div>
+        <div class="talimat-uyari">HEDEF BÖLGEDE DENGEDE KAL!</div>
+    </div>
+
+    <canvas id="gameCanvas" width="1000" height="800"></canvas>
+
+    <div id="sagUstKontroller">
+        <div class="kontrol-btn" onclick="oyunuYenile()" title="Yeniden Başlat">🔄</div>
+        <div class="kontrol-btn" id="duraklatBtn" onclick="oyunuDuraklat()" title="Duraklat/Devam Et">⏸️</div>
+    </div>
+
+    <div id="mobil-kontroller">
+        <div class="mobil-sol-grup">
+            <button class="mobil-btn" id="btn-sol">◀</button>
+            <button class="mobil-btn" id="btn-sag">▶</button>
+        </div>
+        <div class="mobil-sag-grup">
+            <button class="mobil-btn aksiyon" id="btn-aksiyon">AKSİYON</button>
+            <button class="mobil-btn" id="btn-zipla">▲</button>
+        </div>
+    </div>
+    <script>
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const kareBoyut = 40;
+        const mesafeY = 760;
+        const yerCekimi = 0.42;;
+        const surtunmeKatsayisi = 0.92;
+
+        const BLOK_TIPLERI = {
+            NORMAL: { renk: '#3498db', jump: 1 },
+            ZIPLAYAN: { renk: '#2ecc71', jump: 1.8 },
+            BUZ: { renk: '#a2d2ff', jump: 1 }
+        };
+
+        let tumSekiller = [];
+        let seciliSekiller = [];
+        let suankiSekil = null;
+        let oyunModu = "DRAWING";
+        let oscilation = 0;
+        let dengeSuresi = 0;
+        const galibiyetYuksekligi = 400;
+        let kazanmaSuresi = 0;
+        let parkurSuresi = 90 * 60;
+        const genlik = 350;
+        let seciliBlokTipi = BLOK_TIPLERI.NORMAL;
+        let parcaciklar = [];
+
+        const karakter = { x: 80, y: 800, genislik: 40, yukseklik: 50, V_x: 0, V_y: 0, hiz: 6.5, ziplama: -9.5, yer_degme: false };
+        const tuslar = {};
+        let seciliArkaPlan = new Image();
+        let seciliKarakter = new Image();
+        let bgSecildi = false;
+        let charSecildi = false;
+        let oyunBasladi = false;
+
+        const bgMusic = new Audio('ana_oyun.mpeg');
+        bgMusic.loop = true; 
+        bgMusic.volume = 0.2; 
+
+        const ziplamaSesi = new Audio('zıplama.mpeg');
+        ziplamaSesi.volume = 0.6; 
+
+        const blokDusmeSesi = new Audio('blok_dusme.mpeg');
+        blokDusmeSesi.volume = 0.8;
+
+        // Sayfa okunur okunmaz (resimleri beklemeden) sayacı başlat
+        setTimeout(() => {
+            const splash = document.getElementById("splashEkrani");
+            const menu = document.getElementById("baslangicEkrani");
+
+            if (splash && menu) {
+                // 1. menü tasarımı
+                menu.style.display = "flex";
+
+                // 2. giriş ekranı kaybolma
+                splash.style.transition = "opacity 1.5s ease";
+                splash.style.opacity = "0";
+
+                // 3. giriş ekranı silme
+                setTimeout(() => {
+                    splash.style.display = "none";
+                }, 1500);
+            }
+        }, 6000);
+
+        // Menüdeki butonlardan gelen asset resim seçimlerini değişkene atayan fonksiyon
+        function secimYap(tip, dosyaAdi, element) {
+            if (tip === 'bg') {
+                seciliArkaPlan.src = dosyaAdi;
+                bgSecildi = true;
+                document.querySelectorAll('#bgSecimleri .secenek').forEach(el => el.classList.remove('aktif'));
+            } else {
+                seciliKarakter.src = dosyaAdi;
+                charSecildi = true;
+                document.querySelectorAll('#charSecimleri .secenek').forEach(el => el.classList.remove('aktif'));
+            }
+            element.classList.add('aktif');
+
+            if (bgSecildi && charSecildi) {
+                document.getElementById('oyunaBaslaBtn').style.display = 'block';
+            }
+        }
+
+        // Oyuna Başla butonuna basıldığında menüyü kapatan fonksiyon
+        function oyunuBaslat() {
+            const menu = document.getElementById('baslangicEkrani');
+
+            menu.style.transition = "opacity 0.8s ease";
+            menu.style.opacity = "0";
+
+            setTimeout(() => {
+                menu.style.display = 'none';
+                oyunBasladi = true;
+                bgMusic.play();
+            }, 800);
+        }
+
+        //  OYUN KONTROL (DURDUR/YENİLE) FONKSİYONLARI
+        let oyunDuraklatildi = false;
+
+        function oyunuYenile() {
+            location.reload(); // Sayfayı yenileyerek oyunu sıfırlama
+        }
+
+        function oyunuDuraklat() {
+            if (!oyunBasladi) return;
+
+            oyunDuraklatildi = !oyunDuraklatildi; //Aç/Kapat
+
+            const btn = document.getElementById("duraklatBtn");
+            const ekran = document.getElementById("duraklatEkrani");
+
+            if (oyunDuraklatildi) {
+                btn.innerText = "▶️";
+                ekran.style.display = "block";
+            } else {
+                btn.innerText = "⏸️";
+                ekran.style.display = "none";
+            }
+        }
+
+        //  1. MATEMATİK VE GEOMETRİ 
+        /*
+        * yeniNokta(px, py, cx, cy, aci)
+        * Bir noktanın (p) belirlenen bir merkez (c) etrafında belirli bir açıyla 
+        * döndürüldükten sonraki yeni X ve Y koordinatlarını hesaplama (2D Rotasyon Matrisi).
+        */
+        function yeniNokta(px, py, cx, cy, aci) {
+            let x = px - cx;
+            let y = py - cy;
+            return {
+                x: cx + (x * Math.cos(aci) - y * Math.sin(aci)),
+                y: cy + (x * Math.sin(aci) + y * Math.cos(aci))
+            };
+        }
+
+        /*
+        * merkeziHesapla(parcalar)
+        * Fizik: Çizdiğimiz çok parçalı blokların kütle merkezini (Center of Mass) hesaplar. 
+        * Objenin yerçekimiyle düşerken veya sallanırken referans alacağı denge noktasıdır.
+        */
+        function merkeziHesapla(parcalar) {
+            let tX = 0, tY = 0;
+            parcalar.forEach(p => {
+                tX += p.ox + kareBoyut / 2;
+                tY += p.oy + kareBoyut / 2;
+            });
+            return { x: tX / parcalar.length, y: tY / parcalar.length };
+        }
+
+        /*
+        * getPolyNormals(points)
+        * Çarpışma: SAT (Ayrık Eksen Teoremi) algoritması için çokgenlerin yüzey normallerini 
+        * (yüzeye dik vektörleri) hesaplar.
+        */
+        function getPolyNormals(points) {
+            const normals = [];
+            for (let i = 0; i < points.length; i++) {
+                const p1 = points[i];
+                const p2 = points[(i + 1) % points.length];
+                const normal = { x: -(p2.y - p1.y), y: p2.x - p1.x }; // Dik açı
+                const len = Math.hypot(normal.x, normal.y);
+                normals.push({ x: normal.x / len, y: normal.y / len });
+            }
+            return normals;
+        }
+
+        /*
+        * projectPoly(points, axis)
+        * Çarpışma: Bir çokgenin (şeklin) köşe noktalarını tek bir eksen üzerine izdüşürür (Gölgesini alır). 
+        * İki şeklin örtüşüp örtüşmediğini anlamak için kullanılır.
+        */
+        function projectPoly(points, axis) {
+            let min = Infinity, max = -Infinity;
+            for (let p of points) {
+                const dot = p.x * axis.x + p.y * axis.y;
+                if (dot < min) min = dot;
+                if (dot > max) max = dot;
+            }
+            return { min, max };
+        }
+
+        /*
+        * poligonPoligonCarpismasi(polyA, polyB)
+        * Çarpışma: Gelişmiş SAT (Separating Axis Theorem) çarpışma testi. İki şeklin iç içe 
+        * geçip geçmediğini kesin olarak algılar ve objeleri ayırmak için gereken itme vektörünü (MTV) hesaplar.
+        */
+        function poligonPoligonCarpismasi(polyA, polyB) {
+            const eksenler = [...getPolyNormals(polyA), ...getPolyNormals(polyB)];
+            let minOverlap = Infinity;
+            let smallestAxis = null;
+
+            for (let axis of eksenler) {
+                const projA = projectPoly(polyA, axis);
+                const projB = projectPoly(polyB, axis);
+
+                // EĞER BİR TANE BİLE BOŞLUK VARSA ÇARPIŞMA YOKTUR
+                if (projA.max <= projB.min || projB.max <= projA.min) {
+                    return false;
+                }
+
+                // Çarpışma varsa, ne kadar iç içe geçtiklerini hesapla
+                let overlap = Math.min(projA.max, projB.max) - Math.max(projA.min, projB.min);
+                if (overlap < minOverlap) {
+                    minOverlap = overlap;
+                    smallestAxis = axis;
+                }
+            }
+
+            // İtme yönünü PolyA'yı PolyB'den dışarı atacak şekilde düzelt
+            let cxA = 0, cyA = 0, cxB = 0, cyB = 0;
+            polyA.forEach(p => { cxA += p.x; cyA += p.y; });
+            polyB.forEach(p => { cxB += p.x; cyB += p.y; });
+            cxA /= polyA.length; cyA /= polyA.length;
+            cxB /= polyB.length; cyB /= polyB.length;
+
+            if ((cxA - cxB) * smallestAxis.x + (cyA - cyB) * smallestAxis.y < 0) {
+                smallestAxis.x = -smallestAxis.x;
+                smallestAxis.y = -smallestAxis.y;
+            }
+
+            // Geriye sadece çarpışmayı değil, itme gücünü de döndürüyoruz
+            return { eksen: smallestAxis, miktar: minOverlap };
+        }
+
+        /*
+        * isPointInsidePoly(p, poly)
+        * Çarpışma: Verilen bir noktanın çokgenin içinde kalıp kalmadığını test eder (Ray-casting/Winding mantığı). 
+        * Bloklar çarpıştığında tam temas noktasını bulmak için kullanıyoruz.
+        */
+        function isPointInsidePoly(p, poly) {
+            let icerde = false;
+            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                if (((poly[i].y > p.y) !== (poly[j].y > p.y)) &&
+                    (p.x < (poly[j].x - poly[i].x) * (p.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)) {
+                    icerde = !icerde;
+                }
+            }
+            return icerde;
+        }
+
+        /*
+        * getBilesikPoligonlar(sekil, dx, dy, aciDegisimi)
+        * Fizik: Çizilen şekilleri tek bir büyük kutu (Bounding Box) yapmak yerine, şekli oluşturan 
+        * her bir küçük kareyi bağımsız birer "Collider"a (çarpıştırıcıya) dönüştürür.
+        */
+        function getBilesikPoligonlar(sekil, dx = 0, dy = 0, aciDegisimi = 0) {
+            const poligonlar = [];
+            const testAcisi = (sekil.aci || 0) + aciDegisimi;
+            const testX = sekil.x + dx;
+            const testY = sekil.y + dy;
+            const merkezX = testX + sekil.centerX;
+            const merkezY = testY + sekil.centerY;
+            const daralma = 0.1;
+
+            for (let parca of sekil.parcalar) {
+                const ox = testX + parca.ox;
+                const oy = testY + parca.oy;
+                const gen = parca.w || kareBoyut;
+                const yuk = parca.h || kareBoyut;
+
+                poligonlar.push([
+                    yeniNokta(ox + daralma, oy + daralma, merkezX, merkezY, testAcisi),
+                    yeniNokta(ox + gen - daralma, oy + daralma, merkezX, merkezY, testAcisi),
+                    yeniNokta(ox + gen - daralma, oy + yuk - daralma, merkezX, merkezY, testAcisi),
+                    yeniNokta(ox + daralma, oy + yuk - daralma, merkezX, merkezY, testAcisi)
+                ]);
+            }
+            return poligonlar;
+        }
+
+        /*
+        * getPoligonNoktalari(sekil, dx, dy, aciDegisimi)
+        * Yardımcı: Şeklin köşelerini düz bir dizi olarak döndürür. Temel olarak objelerin zemin (yer) 
+        * sınırını aşıp aşmadığını test etmek için kullanılan klasik bir fonksiyon.
+        */
+        function getPoligonNoktalari(sekil, dx = 0, dy = 0, aciDegisimi = 0) {
+            let tumNoktalar = [];
+            getBilesikPoligonlar(sekil, dx, dy, aciDegisimi).forEach(poly => tumNoktalar.push(...poly));
+            return tumNoktalar;
+        }
+
+        /*
+        * carpismaKontrolu(sekil, dx, dy, aciDegisimi)
+        * Çarpışma: Karakterin veya havadan düşen tekil bloğun çevreyle girdiği temel çarpışmaları tarar. 
+        * Temas edilen yüzeyin zemin mi yoksa başka bir blok mu olduğunu ayırt eder.
+        */
+        function carpismaKontrolu(sekil, dx, dy, aciDegisimi = 0) {
+            const polyListA = getBilesikPoligonlar(sekil, dx, dy, aciDegisimi);
+
+            for (let polyA of polyListA) {
+                for (let p of polyA) {
+                    if (p.y >= mesafeY) return { tip: 'ZEMIN', hitX: p.x, hitY: p.y, miktar: p.y - mesafeY + 0.1, eksen: { x: 0, y: -1 } };
+                }
+            }
+
+            for (let diger of tumSekiller) {
+                if (diger === sekil) continue;
+                const polyListB = getBilesikPoligonlar(diger);
+
+                // Her iki objenin alt karelerini birbiriyle test et (Box vs Box)
+                for (let polyA of polyListA) {
+                    for (let polyB of polyListB) {
+                        let mtv = poligonPoligonCarpismasi(polyA, polyB);
+                        if (mtv) {
+                            let hitX = 0, hitY = 0, count = 0;
+                            for (let p of polyA) { if (isPointInsidePoly(p, polyB)) { hitX += p.x; hitY += p.y; count++; } }
+                            for (let p of polyB) { if (isPointInsidePoly(p, polyA)) { hitX += p.x; hitY += p.y; count++; } }
+                            if (count > 0) { hitX /= count; hitY /= count; }
+                            else { hitX = sekil.x + sekil.centerX; hitY = sekil.y + sekil.centerY; }
+
+                            return { tip: 'BLOK', hitX: hitX, hitY: hitY, blok: diger, mtv: mtv };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        /*
+        * cokluCarpismaKontrolu(sekil, dx, dy, aciDegisimi)
+        * Kuledeki blokların birbiriyle olan karmaşık temaslarını hesaplar. 
+        * Bloğun devrilmesini (Tork) hesaplayabilmek için temas noktalarının detaylı listesini çıkarır.
+        */
+        function cokluCarpismaKontrolu(sekil, dx = 0, dy = 0, aciDegisimi = 0) {
+            const polyListA = getBilesikPoligonlar(sekil, dx, dy, aciDegisimi);
+            let temaslar = [];
+
+            let maxPenY = 0;
+            let hitX = 0, count = 0;
+            for (let polyA of polyListA) {
+                for (let p of polyA) {
+                    if (p.y >= mesafeY) {
+                        let pen = p.y - mesafeY;
+                        if (pen > maxPenY) maxPenY = pen;
+                        hitX += p.x; count++;
+                    }
+                }
+            }
+            if (count > 0) temaslar.push({ tip: 'ZEMIN', hitX: hitX / count, hitY: mesafeY, miktar: maxPenY + 0.1, eksen: { x: 0, y: -1 } });
+
+            for (let diger of tumSekiller) {
+                if (diger === sekil) continue;
+                const polyListB = getBilesikPoligonlar(diger);
+
+                let enBuyukMTV = null;
+                let hX = 0, hY = 0, hCount = 0;
+
+                for (let polyA of polyListA) {
+                    for (let polyB of polyListB) {
+                        let mtv = poligonPoligonCarpismasi(polyA, polyB);
+                        if (mtv) {
+                            if (!enBuyukMTV || mtv.miktar > enBuyukMTV.miktar) enBuyukMTV = mtv;
+                            for (let p of polyA) { if (isPointInsidePoly(p, polyB)) { hX += p.x; hY += p.y; hCount++; } }
+                            for (let p of polyB) { if (isPointInsidePoly(p, polyA)) { hX += p.x; hY += p.y; hCount++; } }
+                        }
+                    }
+                }
+
+                if (enBuyukMTV) {
+                    if (hCount > 0) { hX /= hCount; hY /= hCount; }
+                    else { hX = sekil.x + sekil.centerX; hY = sekil.y + sekil.centerY; }
+                    temaslar.push({ tip: 'BLOK', hitX: hX, hitY: hY, blok: diger, mtv: enBuyukMTV });
+                }
+            }
+            return temaslar;
+        }
+
+        /*
+        * momentumAktarimi(aktifSekil, hedefSekil)
+        * Fizik: Yukarıdan düşen blok alttakine şiddetle çarptığında, sahip olduğu enerjinin (hızın) 
+        * bir kısmını alttakine aktararak kulenin sarsılmasını sağlar.
+        */
+        function momentumAktarimi(aktifSekil, hedefSekil) {
+            hedefSekil.V_y += aktifSekil.V_y * 0.3;
+            hedefSekil.V_x += aktifSekil.V_x * 0.3;
+        }
+
+        /*
+        * fizikAdimla()
+        * Fizik Motoru: Oyunun asıl matematiksel kalbi. Her karede yerçekimini, sürtünmeyi, ivmeyi, 
+        * devrilme kuvvetini (tork) ve çarpışma tepkilerini hesaplar. Performans için hareketsiz objeleri uyku moduna alır.
+        */
+        function fizikAdimla() {
+            let adimSayisi = 8;
+            let altYerCekimi = yerCekimi / adimSayisi;
+
+            for (let i = 0; i < adimSayisi; i++) {
+                tumSekiller.forEach(s => {
+                    s.V_y += altYerCekimi;
+                    s.V_x *= 0.99;
+                    s.V_aci *= 0.98;
+
+                    s.x += s.V_x;
+                    s.y += s.V_y;
+                    s.aci += s.V_aci;
+
+                    let temaslar = cokluCarpismaKontrolu(s, 0, 0);
+
+                    if (temaslar.length > 0) {
+                        let toplamTork = 0;
+                        let carpismaSayisi = temaslar.length;
+                        let zeminTemasiVar = false;
+
+                        temaslar.forEach(temas => {
+                            let Fx = 0;
+                            let Fy = -1;
+
+                            if (temas.mtv) {
+                                Fx = temas.mtv.eksen.x;
+                                Fy = temas.mtv.eksen.y;
+
+                                let duzeltme = Math.max(temas.mtv.miktar - 0.3, 0) / carpismaSayisi;
+                                s.x += Fx * duzeltme * 0.5;
+                                s.y += Fy * duzeltme * 0.5;
+
+                                if (Fy < -0.3) zeminTemasiVar = true;
+                            } else if (temas.tip === 'ZEMIN') {
+                                let duzeltme = Math.max(temas.miktar - 0.2, 0);
+                                s.y += temas.eksen.y * duzeltme * 0.8;
+                                zeminTemasiVar = true;
+                            }
+
+                            let rx = temas.hitX - (s.x + s.centerX);
+                            let ry = temas.hitY - (s.y + s.centerY);
+
+                            let tork = (rx * Fy - ry * Fx);
+                            if (Math.abs(tork) < 3.5) tork = 0;
+
+                            toplamTork += tork * 0.00025;
+                        });
+
+                        // Devrilme Algılayıcı
+                        // Eğer blok dengesizse (Tork gücü yüksekse) devrilme durumundadır.
+                        let devriliyorMu = Math.abs(toplamTork) > 0.005;
+
+                        if (zeminTemasiVar) {
+                            if (!devriliyorMu) {
+                                // Kütle merkezi sağlam basıyorsa tok bir şekilde otur (Sekmeyi kes)
+                                s.V_y *= 0.3;
+                                s.V_x *= 0.6;
+                            } else {
+                                // Sadece bir ayağı yere değiyor ama kütle merkezi boştaysa düşer!
+                                s.V_y *= 0.8;
+                                s.V_x *= 0.8;
+                            }
+                        } else {
+                            s.V_x *= 0.8;
+                        }
+
+                        if (carpismaSayisi > 1 && !devriliyorMu) {
+                            // Kule içinde sıkışmış ve dengedeyse titremeyi dondur
+                            s.V_aci *= 0.4;
+                            s.V_aci += (toplamTork / carpismaSayisi) * 0.4;
+                        } else {
+                            // Devrilme aşamasındaysa dönüş hızını serbest bırak
+                            s.V_aci *= 0.95;
+                            s.V_aci += toplamTork;
+                        }
+
+                        // Akıllı Uyku Modu (Sadece dengedeyse uyut)
+                        let torkEsiği = carpismaSayisi > 1 ? 0.015 : 0.004; // Artan tork gücüne göre uyku eşiği güncellendi
+                        let hizEsiği = carpismaSayisi > 1 ? 0.25 : 0.05;
+
+                        if (Math.abs(toplamTork) < torkEsiği) {
+                            if (Math.abs(s.V_x) < hizEsiği) s.V_x = 0;
+                            if (Math.abs(s.V_y) < hizEsiği) s.V_y = 0;
+                            if (Math.abs(s.V_aci) < torkEsiği) s.V_aci = 0;
+                        }
+                    }
+
+                    for (let p of getPoligonNoktalari(s)) {
+                        if (p.y >= mesafeY) {
+                            s.y -= (p.y - mesafeY);
+                            if (s.V_y > 0) s.V_y = 0;
+                            s.V_x *= 0.6;
+                            break;
+                        }
+                    }
+
+                    const MAX_W = 0.08;
+                    if (s.V_aci > MAX_W) s.V_aci = MAX_W;
+                    if (s.V_aci < -MAX_W) s.V_aci = -MAX_W;
+                });
+            }
+        }
+        //KULLANICI GİRDİLERİ VE OYUN AKIŞI 
+        canvas.addEventListener("mousedown", e => {
+            if (oyunModu !== "DRAWING" || seciliSekiller.length >= 4) return;
+
+            const gx = Math.floor(e.offsetX / kareBoyut);
+            const gy = Math.floor(e.offsetY / kareBoyut);
+
+            // Parçaların arasında boşluk kalmaması için "Bitişiklik" kontrolü
+            if (seciliSekiller.length > 0) {
+                const bitisikMi = seciliSekiller.some(s =>
+                    (Math.abs(s.x - gx) === 1 && s.y === gy) ||
+                    (Math.abs(s.y - gy) === 1 && s.x === gx)
+                );
+                if (!bitisikMi) return; // Bitişik değilse çizime izin verme
+            }
+
+            if (!seciliSekiller.find(s => s.x === gx && s.y === gy)) {
+                seciliSekiller.push({ x: gx, y: gy });
+                document.getElementById("taslakYazisi").innerText = `${seciliSekiller.length} / 4`;
+            }
+        });
+
+        window.addEventListener("keydown", e => {
+            tuslar[e.code] = true;
+
+            if (e.code === "Space") {
+                if (oyunModu === "DRAWING" && seciliSekiller.length > 0) {
+                    oyunModu = "SWINGING";
+                    document.getElementById("modYazisi").innerText = "HEDEFLEME";
+                }
+                else if (oyunModu === "SWINGING") {
+                    const minX = Math.min(...seciliSekiller.map(t => t.x));
+                    const minY = Math.min(...seciliSekiller.map(t => t.y));
+                    const ofset = Math.sin(oscilation) * genlik;
+
+                    const parcalar = seciliSekiller.map(t => ({
+                        ox: (t.x - minX) * kareBoyut, oy: (t.y - minY) * kareBoyut
+                    }));
+                    const m = merkeziHesapla(parcalar);
+
+                    suankiSekil = {
+                        x: (canvas.width / 2 + ofset) - m.x,
+                        y: 80, V_x: 0, V_y: 0, aci: 0, V_aci: 0,
+                        centerX: m.x, centerY: m.y,
+                        parcalar: parcalar, config: seciliBlokTipi
+                    };
+                    oyunModu = "FALLING";
+                }
+                else if (oyunModu === "CHARACTER_PLAY" && karakter.yer_degme) {
+                    karakter.V_y = karakter.ziplama;
+                    karakter.yer_degme = false;
+
+                    ziplamaSesi.currentTime = 0; 
+                    ziplamaSesi.play();
+                }
+            }
+
+            // Sadece planlama modundayken ve kulede en az 1 blok varken Enter'a basılabilir
+            if (e.code === "Enter" && oyunModu === "DRAWING" && tumSekiller.length > 0) {
+                oyunModu = "BALANCING";
+                document.getElementById("modYazisi").innerText = "DENGELEME";
+            }
+        });
+        window.addEventListener("keyup", e => tuslar[e.code] = false);
+
+        // MOBİL DOKUNMATİK ÇİZİM (Taslak Çizme)
+        canvas.addEventListener("touchstart", e => {
+            // EĞER ÇİZİM MODUNDA DEĞİLSEK VEYA ÇİZİM BİTTİYSE, EKRANI KİLİTLEME (KAYDIRMAYA İZİN VER)
+            if (oyunModu !== "DRAWING" || seciliSekiller.length >= 4) {
+                return;
+            }
+
+            e.preventDefault(); // Sadece çizim yaparken sayfanın kaymasını engelle
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const touchX = (e.touches[0].clientX - rect.left) * scaleX;
+            const touchY = (e.touches[0].clientY - rect.top) * scaleY;
+
+            const gx = Math.floor(touchX / kareBoyut);
+            const gy = Math.floor(touchY / kareBoyut);
+
+            if (seciliSekiller.length > 0) {
+                const bitisikMi = seciliSekiller.some(s =>
+                    (Math.abs(s.x - gx) === 1 && s.y === gy) ||
+                    (Math.abs(s.y - gy) === 1 && s.x === gx)
+                );
+                if (!bitisikMi) return;
+            }
+
+            if (!seciliSekiller.find(s => s.x === gx && s.y === gy)) {
+                seciliSekiller.push({ x: gx, y: gy });
+                document.getElementById("taslakYazisi").innerText = `${seciliSekiller.length} / 4`;
+            }
+        }, { passive: false });
+
+        // SANAL TUŞ BAĞLANTILARI
+        // Sol-Sağ ve Zıplama
+        const btnSol = document.getElementById("btn-sol");
+        const btnSag = document.getElementById("btn-sag");
+        const btnZipla = document.getElementById("btn-zipla");
+        const btnAksiyon = document.getElementById("btn-aksiyon");
+
+        const dokunmaBasla = (tusKodu) => (e) => { e.preventDefault(); tuslar[tusKodu] = true; };
+        const dokunmaBitir = (tusKodu) => (e) => { e.preventDefault(); tuslar[tusKodu] = false; };
+
+        // Tuşlara klavye yetkilerini ver
+        btnSol.addEventListener("touchstart", dokunmaBasla("KeyA"));
+        btnSol.addEventListener("touchend", dokunmaBitir("KeyA"));
+        btnSag.addEventListener("touchstart", dokunmaBasla("KeyD"));
+        btnSag.addEventListener("touchend", dokunmaBitir("KeyD"));
+        btnZipla.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            tuslar["KeyW"] = true;
+
+            // Karakter modundaysa ve yere değiyorsa anında zıplatma
+            if (oyunModu === "CHARACTER_PLAY" && karakter.yer_degme) {
+                karakter.V_y = karakter.ziplama;
+                karakter.yer_degme = false;
+
+                ziplamaSesi.currentTime = 0;
+                ziplamaSesi.play();
+            }
+        });
+        btnZipla.addEventListener("touchend", dokunmaBitir("KeyW"));
+
+        // AKSİYON (SPACE) TUŞU 
+        btnAksiyon.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            tuslar["Space"] = true; // Karakterin zıplaması için
+
+            // Tüm mobil tarayıcılarla uyum
+            const spaceEventKeyDown = new KeyboardEvent('keydown', {
+                key: ' ',
+                code: 'Space',
+                keyCode: 32,
+                which: 32,
+                bubbles: true,
+                cancelable: true
+            });
+            window.dispatchEvent(spaceEventKeyDown);
+        });
+
+        btnAksiyon.addEventListener("touchend", (e) => {
+            e.preventDefault();
+            tuslar["Space"] = false;
+
+            // Tuştan elimizi çektiğimizi de sisteme bildirmeliyiz
+            const spaceEventKeyUp = new KeyboardEvent('keyup', {
+                key: ' ',
+                code: 'Space',
+                keyCode: 32,
+                which: 32,
+                bubbles: true,
+                cancelable: true
+            });
+            window.dispatchEvent(spaceEventKeyUp);
+        });
+
+        /*
+        * blokTipiSec(tip, id)
+        * Mekanik: Kullanıcının envanterden seçtiği bloğun fiziksel özelliklerini 
+        * (zıplatma gücü, buz kayganlığı, renk) sıradaki çizim için aktif hale getirir.
+        */
+        window.blokTipiSec = (tip, id) => {
+            seciliBlokTipi = Object.assign({}, BLOK_TIPLERI[tip], { tip: tip });
+            document.querySelectorAll('.slot').forEach(s => s.classList.remove('aktif'));
+            document.getElementById('slot' + id).classList.add('aktif');
+        };
+
+        /*
+        * parcacikOlustur(x, y, renk)
+        * Görsel Efekt: Bloklar sert bir şekilde zemine veya birbirine çarptığında, 
+        * çarpışma noktasında etrafa saçılan minik renkli partikülleri üretir.
+        */
+        function parcacikOlustur(x, y, renk) {
+            for (let i = 0; i < 8; i++) {
+                parcaciklar.push({
+                    x: x, y: y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, omur: 1.0, renk: renk
+                });
+            }
+        }
+        /*
+        * update()
+        * Ana Döngü: requestAnimationFrame ile saniyede 60 kez (FPS) çalışan ana oyun döngüsü. 
+        * Oyunun fazlarını (Çizim, Sallanma, Düşme, Dengeleme, Karakter) yönetir, sayaçları kontrol eder ve ekranı sürekli yeniden çizer.
+        */
+        function update() {
+            if (!oyunBasladi) {
+                requestAnimationFrame(update);
+                return;
+            }
+            if (oyunDuraklatildi) {
+                requestAnimationFrame(update);
+                return;
+            }
+            oscilation += 0.015;
+            // parkur süresi kontrolü
+            if (oyunModu === "DRAWING" || oyunModu === "SWINGING" || oyunModu === "FALLING") {
+                if (parkurSuresi > 0) {
+                    parkurSuresi--;
+                    let kalanSaniye = Math.ceil(parkurSuresi / 60);
+                    let sureEkran = document.getElementById("sureYazisi");
+                    sureEkran.innerText = kalanSaniye;
+
+                    // Son 5 saniye uyarısı
+                    if (kalanSaniye <= 5) {
+                        sureEkran.style.opacity = (parkurSuresi % 30 < 15) ? "0.3" : "1";
+                    }
+                } else if (oyunModu === "DRAWING") {
+                    // Süre bitti! 
+                    seciliSekiller = [];
+                    document.getElementById("taslakYazisi").innerText = "0 / 4";
+                    document.getElementById("sureYazisi").style.opacity = "1";
+                    document.getElementById("sureYazisi").innerText = "BİTTİ!";
+
+                    if (tumSekiller.length > 0) {
+                        oyunModu = "BALANCING";
+                        document.getElementById("modYazisi").innerText = "DENGELEME";
+                    } else {
+                        // Hiç blok koyamadıysa direkt karaktere geç
+                        oyunModu = "CHARACTER_PLAY";
+                        document.getElementById("modYazisi").innerText = "KARAKTER";
+                    }
+                }
+            }
+
+            // düşme modu
+            if (oyunModu === "FALLING" && suankiSekil) {
+                suankiSekil.V_y += yerCekimi;
+
+                // limit hız
+                if (suankiSekil.V_y > 16) {
+                    suankiSekil.V_y = 16;
+                }
+
+                let py = suankiSekil.y;
+                suankiSekil.y += suankiSekil.V_y;
+
+                let carpisma = carpismaKontrolu(suankiSekil, 0, 0);
+                if (carpisma) {
+                    blokDusmeSesi.currentTime = 0;
+                    blokDusmeSesi.play();
+
+                    suankiSekil.y = py;
+                    if (carpisma.blok) momentumAktarimi(suankiSekil, carpisma.blok);
+                    parcacikOlustur(carpisma.hitX, carpisma.hitY, suankiSekil.config.renk);
+
+                    tumSekiller.push(suankiSekil);
+                    suankiSekil = null;
+                    seciliSekiller = [];
+                    oyunModu = "DRAWING";
+                    document.getElementById("modYazisi").innerText = "PLANLAMA";
+                    document.getElementById("taslakYazisi").innerText = "0 / 4";
+                }
+            }
+
+            // dengeleme modu - 3 saniye kuralı
+            if (oyunModu === "BALANCING" || oyunModu === "CHARACTER_PLAY") {
+                fizikAdimla();
+
+                if (oyunModu === "BALANCING") {
+                    let hareketVarMi = tumSekiller.some(s => Math.abs(s.V_y) > 0.15 || Math.abs(s.V_aci) > 0.015);
+
+                    if (!hareketVarMi) {
+                        dengeSuresi++;
+
+                        let kalanSaniye = Math.ceil(3 - (dengeSuresi / 60));
+                        document.getElementById("modYazisi").innerText = "SABİTLENİYOR... " + kalanSaniye;
+
+                        if (dengeSuresi >= 180) {
+                            oyunModu = "CHARACTER_PLAY";
+                            document.getElementById("modYazisi").innerText = "KARAKTER";
+                            dengeSuresi = 0;
+                        }
+                    } else {
+                        dengeSuresi = 0;
+                        document.getElementById("modYazisi").innerText = "DENGELEME";
+                    }
+                }
+            }
+
+            // karakter kontrolü
+            if (oyunModu === "CHARACTER_PLAY") {
+                // Bob'un fizik modeli
+                let bobFizikModeli = {
+                    x: karakter.x,
+                    y: karakter.y,
+                    parcalar: [{ ox: 0, oy: 0, w: karakter.genislik, h: karakter.yukseklik }],
+                    centerX: karakter.genislik / 2,
+                    centerY: karakter.yukseklik / 2,
+                    aci: 0
+                };
+
+                // 0. SIKIŞMA KURTARICI (Anti-Crush Sistemi)
+                // Eğer Bob uyandığında bir bloğun içindeyse, onu dışarı it!
+                let sikisma = carpismaKontrolu(bobFizikModeli, 0, 0);
+                if (sikisma && sikisma.mtv) {
+                    karakter.x += sikisma.mtv.eksen.x * sikisma.mtv.miktar;
+                    karakter.y += sikisma.mtv.eksen.y * sikisma.mtv.miktar;
+
+                    // İtildikten sonra modeli güncelle
+                    bobFizikModeli.x = karakter.x;
+                    bobFizikModeli.y = karakter.y;
+                }
+
+                // Tuş Okumaları
+                if (tuslar["KeyA"] || tuslar["ArrowLeft"]) karakter.V_x = -karakter.hiz;
+                else if (tuslar["KeyD"] || tuslar["ArrowRight"]) karakter.V_x = karakter.hiz;
+                else karakter.V_x = 0;
+
+                karakter.V_y += yerCekimi;
+
+                // X EKSENİ (SAĞ/SOL) KONTROLÜ 
+                let kOncekiX = karakter.x;
+                karakter.x += karakter.V_x;
+
+                bobFizikModeli.x = karakter.x;
+                bobFizikModeli.y = karakter.y - 4; // 
+
+                let engelX = carpismaKontrolu(bobFizikModeli, 0, 0);
+
+                if (engelX && engelX.tip !== 'ZEMIN') {
+                    karakter.x = kOncekiX;
+                }
+
+                // Y EKSENİ (YUKARI/AŞAĞI) KONTROLÜ
+                let kOncekiY = karakter.y;
+                karakter.y += karakter.V_y;
+
+                bobFizikModeli.x = karakter.x;
+                bobFizikModeli.y = karakter.y;
+
+                let engelY = carpismaKontrolu(bobFizikModeli, 0, 0);
+
+                if (engelY) {
+                    karakter.y = kOncekiY;
+
+                    if (karakter.V_y > 0) {
+                        karakter.yer_degme = true;
+                        karakter.V_y = 0;
+                        if (engelY.blok && engelY.blok.config && engelY.blok.config.tip === 'ZIPLAYAN') {
+                            karakter.V_y = karakter.ziplama * engelY.blok.config.jump;
+                        }
+                    } else if (karakter.V_y < 0) {
+                        karakter.V_y = 0;
+                    }
+                } else {
+                    karakter.yer_degme = false;
+                }
+
+                //  karakterin en alttaki ana zeminden (mesafeY) aşağıya düşüp oyun ekranının dışına kaybolmasını engelleme.
+                if (karakter.y > mesafeY - karakter.yukseklik) {
+                    karakter.y = mesafeY - karakter.yukseklik;
+                    karakter.V_y = 0;
+                    karakter.yer_degme = true;
+                }
+            }
+            // GALİBİYET KONTROLÜ 
+            if (karakter.y < galibiyetYuksekligi) {
+                kazanmaSuresi++;
+
+                let kalan = Math.ceil(3 - (kazanmaSuresi / 60));
+                document.getElementById("modYazisi").innerText = "DAYAN! " + kalan;
+
+                // DEV EKRAN YAZISI MANTIĞI
+                if (kalan > 0) {
+                    document.getElementById("countdown").style.display = "block";
+                    document.getElementById("countdown").innerText = kalan;
+                }
+
+                if (kazanmaSuresi >= 180) { // 3 saniye doldu
+                    document.getElementById("countdown").style.display = "none";
+                    document.getElementById("basariModali").classList.add("aktif");
+                }
+            } else {
+                kazanmaSuresi = 0;
+                document.getElementById("countdown").style.display = "none"; // Düştüğünde yazıyı gizle
+                if (oyunModu === "CHARACTER_PLAY") {
+                    document.getElementById("modYazisi").innerText = "KARAKTER";
+                }
+            }
+
+            //  ÇİZİM İŞLEMLERİ
+            // arka plan seçme
+            if (typeof bgSecildi !== 'undefined' && bgSecildi && seciliArkaPlan.complete) {
+                ctx.drawImage(seciliArkaPlan, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // grid çizimi
+            ctx.strokeStyle = "rgba(0, 255, 204, 0.09)";
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += kareBoyut) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += kareBoyut) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            // GALİBİYET ALANI VE ÇİZGİSİ
+            let hedefY = typeof galibiyetYuksekligi !== 'undefined' ? galibiyetYuksekligi : 250;
+
+            ctx.save();
+
+            // Hedef Alanı Daha Koyu ve Belirgin Yapma
+            ctx.fillStyle = "rgba(0, 255, 204, 0.12)";
+            ctx.fillRect(0, 0, canvas.width, hedefY);
+
+            // Hedef Çizgisi
+            ctx.strokeStyle = "#00ffcc";
+            ctx.lineWidth = 4;
+            ctx.shadowColor = "#00ffcc";
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.moveTo(0, hedefY);
+            ctx.lineTo(canvas.width, hedefY);
+            ctx.stroke();
+
+            ctx.shadowBlur = 5;
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "800 18px 'Poppins', sans-serif";
+            ctx.textAlign = "center";
+
+            ctx.restore();
+
+            // EFEKTLER VE PARÇACIKLAR
+            for (let i = parcaciklar.length - 1; i >= 0; i--) {
+                let p = parcaciklar[i];
+                p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.omur -= 0.02;
+                if (p.omur <= 0) { parcaciklar.splice(i, 1); continue; }
+                ctx.globalAlpha = p.omur; ctx.fillStyle = p.renk; ctx.fillRect(p.x, p.y, 3, 3);
+            }
+            ctx.globalAlpha = 1.0;
+
+            // ALT ZEMİN
+            ctx.fillStyle = "#151515"; ctx.fillRect(0, mesafeY, canvas.width, 100);
+
+            //  KULEDEKİ BLOKLAR
+            tumSekiller.forEach(s => {
+                ctx.save(); ctx.translate(s.x + s.centerX, s.y + s.centerY); ctx.rotate(s.aci);
+                s.parcalar.forEach(p => {
+                    ctx.fillStyle = s.config.renk; ctx.fillRect(p.ox - s.centerX, p.oy - s.centerY, kareBoyut, kareBoyut);
+                    ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.strokeRect(p.ox - s.centerX, p.oy - s.centerY, kareBoyut, kareBoyut);
+                });
+                ctx.restore();
+            });
+
+            // HEDEFLEME MODU
+            if (oyunModu === "SWINGING") {
+                const ofset = Math.sin(oscilation) * genlik;
+                const anchorX = canvas.width / 2 + ofset;
+                const ipUzunlugu = 80;
+
+                // Kesikli ip
+                ctx.save();
+                ctx.strokeStyle = "#00ffcc";
+                ctx.lineWidth = 2;
+                ctx.setLineDash([10, 5]);
+                ctx.beginPath(); ctx.moveTo(anchorX, 0); ctx.lineTo(anchorX, ipUzunlugu); ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = "#888"; ctx.fillRect(anchorX - 10, ipUzunlugu, 20, 5);
+                ctx.restore();
+
+                // Ucundaki blok
+                ctx.fillStyle = seciliBlokTipi.renk;
+                seciliSekiller.forEach(t => {
+                    let cizX = anchorX + (t.x - seciliSekiller[0].x) * kareBoyut;
+                    let cizY = ipUzunlugu + 5 + (t.y - seciliSekiller[0].y) * kareBoyut;
+                    ctx.fillRect(cizX, cizY, kareBoyut, kareBoyut);
+                    ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.strokeRect(cizX, cizY, kareBoyut, kareBoyut);
+                });
+            }
+
+            // PLANLAMA MODU 
+            if (oyunModu === "DRAWING") {
+                seciliSekiller.forEach(t => {
+                    ctx.fillStyle = "rgba(52, 152, 219, 0.6)"; ctx.fillRect(t.x * kareBoyut, t.y * kareBoyut, kareBoyut, kareBoyut);
+                });
+            }
+
+            // DÜŞEN BLOK
+            if (suankiSekil && suankiSekil.config) {
+                ctx.save(); ctx.translate(suankiSekil.x + suankiSekil.centerX, suankiSekil.y + suankiSekil.centerY); ctx.rotate(suankiSekil.aci);
+                suankiSekil.parcalar.forEach(p => {
+                    ctx.fillStyle = suankiSekil.config.renk; ctx.fillRect(p.ox - suankiSekil.centerX, p.oy - suankiSekil.centerY, kareBoyut, kareBoyut);
+                    ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.strokeRect(p.ox - suankiSekil.centerX, p.oy - suankiSekil.centerY, kareBoyut, kareBoyut);
+                });
+                ctx.restore();
+            }
+
+            // KARAKTER ÇİZİMİ VE YÖN ÇEVİRME 
+            ctx.save();
+            if (karakter.V_x < 0) {
+                // Sola gidiyorsa yansıma yap
+                ctx.scale(-1, 1);
+                if (typeof charSecildi !== 'undefined' && charSecildi && seciliKarakter.complete) {
+                    ctx.drawImage(seciliKarakter, -karakter.x - karakter.genislik, karakter.y, karakter.genislik, karakter.yukseklik);
+                } else {
+                    ctx.fillStyle = "#00ffcc";
+                    ctx.fillRect(-karakter.x - karakter.genislik, karakter.y, karakter.genislik, karakter.yukseklik);
+                }
+            } else {
+                // Sağa gidiyorsa veya duruyorsa normal çizim
+                if (typeof charSecildi !== 'undefined' && charSecildi && seciliKarakter.complete) {
+                    ctx.drawImage(seciliKarakter, karakter.x, karakter.y, karakter.genislik, karakter.yukseklik);
+                } else {
+                    ctx.fillStyle = "#00ffcc";
+                    ctx.fillRect(karakter.x, karakter.y, karakter.genislik, karakter.yukseklik);
+                }
+            }
+            ctx.restore();
+
+            requestAnimationFrame(update);
+        }
+
+        update();
+    </script>
+</body>
+
+</html>
