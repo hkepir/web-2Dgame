@@ -1,3 +1,4 @@
+<img width="1908" height="1030" alt="yapı_olusturma" src="https://github.com/user-attachments/assets/9313152a-02d6-43ec-a272-448287af45b1" />
 # High Quack - 2D Denge ve Kule İnşa Oyunu
 
 Bu proje, HTML5 Canvas ve saf JavaScript kullanılarak geliştirilmiş, fizik tabanlı bir 2D kule inşa etme oyunudur. Projenin amacı, herhangi bir oyun motoru  veya fizik kütüphanesi kullanmadan katı cisim dinamiğini ve çarpışma algılamasını sıfırdan implemente etmektir.
