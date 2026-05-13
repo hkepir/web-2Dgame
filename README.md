@@ -1,5 +1,9 @@
 # Kullanılan Kaynaklar ve Asset Credits
 
+## Esinlenen Oyunlar
+### Oyun Linki
+- 
+
 ## Görseller
 
 ### Karakter ve Oyun İllüstrasyonları
