@@ -35,12 +35,14 @@ Oyun bilgisayar üzerinden klavye ve mouse etkileşimi ile oynanmaktadır:
 
 ### 1. Blok Tasarım ve Kule İnşa Aşaması
 Kule Insa Ekrani
-<img width="477" height="258" alt="yapı_olusturma" src="https://github.com/user-attachments/assets/c60c3f29-c7fe-4dd4-9f4f-9fbb264c441f" />
+
+<img width="477" height="258" alt="yapı_olusturma" src="https://github.com/user-attachments/assets/60ec4f0f-911f-497e-8d8b-c7337cc4adc6" />
 
 ---
 
 ### 2. Karakterin Kuleye Tırmanış Aşaması
-[Karakter Denge Ekrani
+Karakter Denge Ekrani
+
 <img width="477" height="258" alt="karakter_hareket" src="https://github.com/user-attachments/assets/865f7be0-2e21-43ce-89bd-f2c4adffd5e0" />
 
 ---
