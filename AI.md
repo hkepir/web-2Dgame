@@ -50,7 +50,8 @@
 18) "Oyun ilk açıldığında oyuncuyu doğrudan menüye atmak istemiyoruz. Bize 5-6 saniye boyunca ekranda kalacak, oyunun adının ve yükleme animasyonlarının olacağı bir giriş sayfası yapmak istiyoruz. Süre bitince otomatik olarak bizim hazırladığımız ana menüye geçmesi gerekiyor. Nasıl yapabiliriz?"
 
 ---
-19) <img width="528" height="385" alt="image" src="https://github.com/user-attachments/assets/12b3d53e-a960-4662-8e10-0da89ca457ae" />
+19)
+ <img width="528" height="385" alt="image" src="https://github.com/user-attachments/assets/12b3d53e-a960-4662-8e10-0da89ca457ae" />
 
  Oyun moduna geçtiğimizde ekrandaki bu rastgele blok dağılımını kod tarafında oluşturacağımız fonksiyonlarla algoritmik olarak nasıl sağlayabiliriz? Her seferinde farklı boyut ve tiplerde objeler üretecek o mimariyi nasıl kurmalıyız? 
 
