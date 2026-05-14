@@ -1,6 +1,6 @@
 * AI Prompt
   
-**Kullanilan promptlar
+->Kullanilan promptlar
 1) "Kütüphane kullanmadan, saf JavaScript ve HTML5 Canvas kullanarak fizik mekanizmaları gerektiren oyun nasıl yapılabilir?"
  ---
 2) "Blueprint Bob gibi bir oyun yapmak istiyorum. Bir inşa aşaması (Blueprint Mode) ve bir de platform aşaması (Real Mode) olan bir oyun mu tasarlamalıyım?"
