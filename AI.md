@@ -36,7 +36,7 @@
 "Görseldeki fizik kurallarına aykırı o asılı kalma durumunu düzeltelim ve dengeyi gerçek hayattaki gibi yapmayı deneyelim. Ayrıca karakter kontrollerinde hala bir sorun var; Karakter şekilleri duvar olarak görmüyor, içlerinden geçip gidiyor."
 
 ---
-14)"Karakterin yönüne göre görseli aynala (flip effect). Sağa giderken sağa, sola giderken sola baksın."
+14) "Karakterin yönüne göre görseli aynala (flip effect). Sağa giderken sağa, sola giderken sola baksın."
 
 ---
 15) "Bu oyunların nasıl yapıldığı hakkında bilgi veren bir kaynak ya da açık kodlu yazılımlar var mı"
