@@ -1,4 +1,5 @@
 * AI Prompt
+  
 **Kullanilan promptlar
 1) "Kütüphane kullanmadan, saf JavaScript ve HTML5 Canvas kullanarak fizik mekanizmaları gerektiren oyun nasıl yapılabilir?"
  ---
