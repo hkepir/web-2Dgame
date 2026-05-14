@@ -54,9 +54,15 @@
 
  Oyun moduna geçtiğimizde ekrandaki bu rastgele blok dağılımını kod tarafında oluşturacağımız fonksiyonlarla algoritmik olarak nasıl sağlayabiliriz? Her seferinde farklı boyut ve tiplerde objeler üretecek o mimariyi nasıl kurmalıyız? 
 
+ ---
+
 20) "[Blueprint Bob](https://suumpmolk.itch.io/blueprint-bob) oyunundan esinlendiğimiz ama Tetris mekaniklerini de barındıran bir oyun tasarlamak istiyorum. Oynanış akışı şöyle olacak: Önce kullanıcı 3 kareden oluşan kendi şeklini çizecek. Şekil tamamlanınca bir tuşa basacak ve şekil hareket ederken zemin zıt yöne kayacak, oyuncu zamanlamayı ayarlayıp şekli bırakacak. Kullanıcı bu şekilde kuleyi dizecek. İnşa bitip onay tuşuna basıldığında fizik kuralları devreye girecek ve kule yerçekimiyle baş başa kalacak. Son aşamada ise karakterimiz sahneye girip bu kulenin en üstündeki hedef çizgisini geçmeye çalışacak. Eğer karakter yukarıda 3 saniye devrilmeden durabilirse bölüm geçilmiş sayılacak. Bu mekaniği nasıl kodlarız?"
 
+---
+
 21) "Referans aldığımız oyunundaki gibi bir yapı kurmak istiyorum. Çizdiğimiz şekiller 3 yerine 4 kareden de oluşabilir, buna sonra karar veririz ama kesinlikle kullanıcının kendi şeklini çizmesini istiyorum. Zemin ve şekil zıt yönlere hareket ederken kullanıcı bunları üst üste dizecek. Ancak şu anki kodda oluşan parçalar oyun moduna girince birbirinden kopup dağılıyor. Ben kullanıcının çizdiği o bütün şeklin tek parça halinde kalmasını istiyorum. Eğer kule dengedeyse şekil bütün olarak dengede kalsın, denge bozulursa da parçalanmadan tek bir blok halinde devrilmesi gerekiyor. Nasıl yapılabilir?"
+
+---
 
 22) "Ben bu oyunda enter'a bastıktan sonra grid mantığını bırakmasını ve gerçek dünyada nasıl davranması gerekiyorsa o şekilde davranmasını istiyorum. Şekili yerleştirmek isterken grid mantığını nasıl bırakabiliriz?"  
 
