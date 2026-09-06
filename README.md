@@ -2,13 +2,18 @@
 
 Bu proje, HTML5 Canvas ve saf JavaScript kullanılarak geliştirilmiş, fizik tabanlı bir 2D kule inşa etme oyunudur. Projenin amacı, herhangi bir oyun motoru  veya fizik kütüphanesi kullanmadan katı cisim dinamiğini ve çarpışma algılamasını sıfırdan implemente etmektir.
 
-## Esinlenen Oyunlar
-### Oyun Linki
-- https://suumpmolk.itch.io/blueprint-bob
-### Oyun Adı
-- Blueprint Bob
+## Oyunu Canlı Oyna
 
-🔗 **[OYUNU CANLI OLARAK OYNAMAK İÇİN BURAYA TIKLAYIN](https://hkepir.github.io/web-2Dgame/)**
+Aşağıdaki bağlantıdan bu proje kapsamında geliştirdiğimiz oyunu oynayabilirsiniz.
+
+🎮 **[Geliştirdiğimiz oyunu canlı olarak oyna →](OYUNUN_CANLI_LINKI)**
+
+## İlham Alınan Oyun
+
+Bu oyun geliştirilirken **Blueprint Bob** adlı oyundan ilham alınmıştır.
+
+- **Oyun:** Blueprint Bob
+- **Bağlantı:** [Blueprint Bob'u itch.io üzerinde incele →](https://suumpmolk.itch.io/blueprint-bob)
 
 ---
 
