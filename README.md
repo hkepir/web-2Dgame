@@ -6,7 +6,7 @@ Bu proje, HTML5 Canvas ve saf JavaScript kullanılarak geliştirilmiş, fizik ta
 
 Aşağıdaki bağlantıdan bu proje kapsamında geliştirdiğimiz oyunu oynayabilirsiniz.
 
-🎮 **[Geliştirdiğimiz oyunu canlı olarak oyna →](OYUNUN_CANLI_LINKI)**
+🎮 **[Geliştirdiğimiz oyunu canlı olarak oyna →](https://hkepir.github.io/web-2Dgame/)**
 
 ## İlham Alınan Oyun
 
